@@ -6,6 +6,27 @@
 #include "GameFramework/Character.h"
 #include "ActionGameCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class ELogLevel : uint8 {
+	TRACE		UMETA(DisplayName = "Trace"),
+	DEBUG		UMETA(DisplayName = "Debug"),
+	INFO		UMETA(DisplayName = "Info"),
+	WARNING		UMETA(DisplayName = "Warning"),
+	ERROR		UMETA(DisplayName = "Error")
+};
+
+UENUM(BlueprintType)
+enum class ELogOutput : uint8 {
+	ALL			UMETA(DisplayName = "All levels"),
+	OUTPUT_LOG	UMETA(DisplayName = "Output log"),
+	SCREEN		UMETA(DisplayName = "Screen")
+};
+
+UENUM(BlueprintType)
+enum class EAttackType: uint8 {
+	MELEE_FIST	UMETA(DisplayName = "Melee - Fist")
+};
+
 UCLASS(config=Game)
 class AActionGameCharacter : public ACharacter
 {
@@ -18,6 +39,12 @@ class AActionGameCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+
+	/** Melee fist attack montage **/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* MeleeFistAttackMontage;
+
 public:
 	AActionGameCharacter();
 
@@ -39,6 +66,10 @@ protected:
 
 	/** Called for side to side input */
 	void MoveRight(float Value);
+
+
+	/** Call for Punch input */
+	void PunchInput();
 
 	/** 
 	 * Called via input to turn at a given rate. 
@@ -68,5 +99,13 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+
+private:
+	/** Log - prints message to log outputs **/
+	void Log(ELogLevel LogLevel, FString Message);
+
+	/** Log - prints message on the screen **/
+	void Log(ELogLevel LogLevel, FString Message, ELogOutput LogOutput);
 };
 

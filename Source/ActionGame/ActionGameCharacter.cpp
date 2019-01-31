@@ -9,6 +9,8 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "Engine.h"
+
 //////////////////////////////////////////////////////////////////////////
 // AActionGameCharacter
 
@@ -45,6 +47,12 @@ AActionGameCharacter::AActionGameCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> MeleeFistAttackMontageObject(TEXT("AnimMontage'/Game/Resources/Animations/MeleeFistAttackMontage.MeleeFistAttackMontage'"));
+	if (MeleeFistAttackMontageObject.Succeeded())
+	{
+		MeleeFistAttackMontage = MeleeFistAttackMontageObject.Object;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,6 +64,8 @@ void AActionGameCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Punch", IE_Pressed, this, &AActionGameCharacter::PunchInput);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AActionGameCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AActionGameCharacter::MoveRight);
@@ -74,6 +84,18 @@ void AActionGameCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AActionGameCharacter::OnResetVR);
+}
+
+void AActionGameCharacter::PunchInput()
+{
+	Log(ELogLevel::INFO, __FUNCTION__);
+
+	// generate random index 1-3
+	int AnimSectionIndex = rand() % 3 + 1;
+	// combine to section name
+	FString AnimSectionName = "start_" + FString::FromInt(AnimSectionIndex);
+
+	PlayAnimMontage(MeleeFistAttackMontage, 1.0f, FName(*AnimSectionName));
 }
 
 
@@ -132,3 +154,70 @@ void AActionGameCharacter::MoveRight(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
+
+
+//========= LOG ON SCREEN =========//
+void AActionGameCharacter::Log(ELogLevel LogLevel, FString Message)
+{
+	Log(LogLevel, Message, ELogOutput::ALL);
+}
+
+void AActionGameCharacter::Log(ELogLevel LogLevel, FString Message, ELogOutput LogOutput)
+{
+	// only print when screen is selected and the GEngine is availiable
+	if ((LogOutput == ELogOutput::ALL || LogOutput == ELogOutput::SCREEN) && GEngine)
+	{
+		// default color
+		FColor LogColor = FColor::Cyan;
+		// change color based on the type
+		switch (LogLevel)
+		{
+		case ELogLevel::TRACE:
+			LogColor = FColor::Green;
+			break;
+		case ELogLevel::DEBUG:
+			LogColor = FColor::Cyan;
+			break;
+		case ELogLevel::INFO:
+			LogColor = FColor::White;
+			break;
+		case ELogLevel::WARNING:
+			LogColor = FColor::Yellow;
+			break;
+		case ELogLevel::ERROR:
+			LogColor = FColor::Red;
+			break;
+		default:
+			break;
+		}
+
+		// print message on the screen for duration time
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, LogColor, Message);
+	}
+	if (LogOutput == ELogOutput::ALL || LogOutput == ELogOutput::SCREEN)
+	{
+		switch (LogLevel)
+		{
+		case ELogLevel::TRACE:
+			UE_LOG(LogTemp, VeryVerbose, TEXT("%s"), *Message);
+			break;
+		case ELogLevel::DEBUG:
+			UE_LOG(LogTemp, Verbose, TEXT("%s"), *Message);
+			break;
+		case ELogLevel::INFO:
+			UE_LOG(LogTemp, Log, TEXT("%s"), *Message);
+			break;
+		case ELogLevel::WARNING:
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *Message);
+			break;
+		case ELogLevel::ERROR:
+			UE_LOG(LogTemp, Error, TEXT("%s"), *Message);
+			break;
+		default:
+			UE_LOG(LogTemp, Log, TEXT("%s"), *Message);
+			break;
+		}
+	}
+}
+
+
