@@ -56,13 +56,18 @@ AActionGameCharacter::AActionGameCharacter()
 
 	LeftCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftCollisionBox"));
 	LeftCollisionBox->SetupAttachment(RootComponent);
-	LeftCollisionBox->SetHiddenInGame(false);
+	LeftCollisionBox->SetCollisionProfileName("NoCollision");
+
 	LeftCollisionBox->SetWorldScale3D(FVector(0.18f));
+	LeftCollisionBox->SetHiddenInGame(false);
+
 
 	RightCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightCollisionBox"));
 	RightCollisionBox->SetupAttachment(RootComponent);
-	RightCollisionBox->SetHiddenInGame(false);
+	RightCollisionBox->SetCollisionProfileName("NoCollision");
+
 	RightCollisionBox->SetWorldScale3D(FVector(0.18f));
+	RightCollisionBox->SetHiddenInGame(false);
 }
 
 void AActionGameCharacter::BeginPlay()
@@ -117,6 +122,22 @@ void AActionGameCharacter::PunchInput()
 	FString AnimSectionName = "start_" + FString::FromInt(AnimSectionIndex);
 
 	PlayAnimMontage(MeleeFistAttackMontage, 1.0f, FName(*AnimSectionName));
+}
+
+void AActionGameCharacter::AttackNotifyStart()
+{
+	Log(ELogLevel::INFO, __FUNCTION__);
+
+	LeftCollisionBox->SetCollisionProfileName("Weapon");
+	RightCollisionBox->SetCollisionProfileName("Weapon");
+}
+
+void AActionGameCharacter::AttackNotifyEnd()
+{
+	Log(ELogLevel::INFO, __FUNCTION__);
+
+	LeftCollisionBox->SetCollisionProfileName("NoCollision");
+	RightCollisionBox->SetCollisionProfileName("NoCollision");
 }
 
 

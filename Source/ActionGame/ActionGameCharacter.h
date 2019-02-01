@@ -113,6 +113,13 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	/** Notifiy start**/
+	UFUNCTION()
+	void AttackNotifyStart();
+	
+	/** Notifiy end**/
+	UFUNCTION()
+	void AttackNotifyEnd();
 
 private:
 	/** Log - prints message to log outputs **/
