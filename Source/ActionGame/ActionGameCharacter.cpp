@@ -53,6 +53,27 @@ AActionGameCharacter::AActionGameCharacter()
 	{
 		MeleeFistAttackMontage = MeleeFistAttackMontageObject.Object;
 	}
+
+	LeftCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftCollisionBox"));
+	LeftCollisionBox->SetupAttachment(RootComponent);
+	LeftCollisionBox->SetHiddenInGame(false);
+	LeftCollisionBox->SetWorldScale3D(FVector(0.18f));
+
+	RightCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightCollisionBox"));
+	RightCollisionBox->SetupAttachment(RootComponent);
+	RightCollisionBox->SetHiddenInGame(false);
+	RightCollisionBox->SetWorldScale3D(FVector(0.18f));
+}
+
+void AActionGameCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// attach collision to sockets based on transformation definitions
+	const FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
+
+	LeftCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "fist_l_collision");
+	RightCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "fist_r_collision");
 }
 
 //////////////////////////////////////////////////////////////////////////
