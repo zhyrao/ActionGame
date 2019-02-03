@@ -7,7 +7,28 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/AudioComponent.h"
+#include "Engine/DataTable.h"
+
 #include "ActionGameCharacter.generated.h"
+
+
+USTRUCT(BlueprintType)
+struct FPlayAttackMontage : public FTableRowBase 
+{
+	GENERATED_BODY()
+
+	/** Animation Montage **/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UAnimMontage* Montage;
+
+	/** Montage Section Cound **/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 AnimationSectionCount;
+
+	/** Discription **/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FString Description;
+};
 
 
 USTRUCT(BlueprintType)
@@ -68,6 +89,9 @@ class AActionGameCharacter : public ACharacter
 	/** Melee fist attack montage **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* MeleeFistAttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	class UDataTable* MeleeAttackDataTable;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Audio, meta = (AllowPrivateAccess = "true"))
 	class USoundCue* AttackPunchSoundCue;

@@ -49,10 +49,18 @@ AActionGameCharacter::AActionGameCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
+	// load player montage
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> MeleeFistAttackMontageObject(TEXT("AnimMontage'/Game/Resources/Animations/MeleeFistAttackMontage.MeleeFistAttackMontage'"));
 	if (MeleeFistAttackMontageObject.Succeeded())
 	{
 		MeleeFistAttackMontage = MeleeFistAttackMontageObject.Object;
+	}
+
+	// load player attack data table
+	static ConstructorHelpers::FObjectFinder<UDataTable> MeleeAttackDataTableObject(TEXT("DataTable'/Game/Resources/PlayerDataTables/PlayerDataTable.PlayerDataTable'"));
+	if (MeleeAttackDataTableObject.Succeeded())
+	{
+		MeleeAttackDataTable = MeleeAttackDataTableObject.Object;
 	}
 
 	LeftCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftCollisionBox"));
@@ -144,12 +152,23 @@ void AActionGameCharacter::PunchInput()
 {
 	Log(ELogLevel::INFO, __FUNCTION__);
 
-	// generate random index 1-3
-	int AnimSectionIndex = rand() % 3 + 1;
-	// combine to section name
-	FString AnimSectionName = "start_" + FString::FromInt(AnimSectionIndex);
 
-	PlayAnimMontage(MeleeFistAttackMontage, 1.0f, FName(*AnimSectionName));
+	if (MeleeAttackDataTable)
+	{
+		static const FString ContextString(TEXT("Player Attack Montage Context"));
+		FPlayAttackMontage* AttackMontage = MeleeAttackDataTable->FindRow<FPlayAttackMontage>(FName(TEXT("Punch1")), ContextString, true);
+		if (AttackMontage)
+		{
+			int32 AniSectionCount = AttackMontage->AnimationSectionCount;
+
+			// generate random index 1-3
+			int AnimSectionIndex = rand() % AniSectionCount + 1;
+			// combine to section name
+			FString AnimSectionName = "start_" + FString::FromInt(AnimSectionIndex);
+
+			PlayAnimMontage(AttackMontage->Montage, 1.0f, FName(*AnimSectionName));
+		}
+	}
 }
 
 void AActionGameCharacter::AttackNotifyStart()
