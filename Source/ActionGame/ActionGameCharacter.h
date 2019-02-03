@@ -120,7 +120,18 @@ public:
 	/** Notifiy end**/
 	UFUNCTION()
 	void AttackNotifyEnd();
+	
+	// triggered when the collision hit event fires between enemy
+	UFUNCTION()
+	void OnAttackHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	// triggered when the collider overlaps another component
+	UFUNCTION()
+	void OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	// triggered when the collider stops overlaps another component
+	UFUNCTION()
+	void OnAttackOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 private:
 	/** Log - prints message to log outputs **/
 	void Log(ELogLevel LogLevel, FString Message);

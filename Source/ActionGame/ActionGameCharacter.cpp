@@ -60,6 +60,7 @@ AActionGameCharacter::AActionGameCharacter()
 
 	LeftCollisionBox->SetWorldScale3D(FVector(0.18f));
 	LeftCollisionBox->SetHiddenInGame(false);
+	LeftCollisionBox->SetNotifyRigidBodyCollision(false); // collision simulation generates hit events
 
 
 	RightCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightCollisionBox"));
@@ -68,6 +69,7 @@ AActionGameCharacter::AActionGameCharacter()
 
 	RightCollisionBox->SetWorldScale3D(FVector(0.18f));
 	RightCollisionBox->SetHiddenInGame(false);
+	RightCollisionBox->SetNotifyRigidBodyCollision(false); // collision simulation generates hit events
 }
 
 void AActionGameCharacter::BeginPlay()
@@ -79,6 +81,15 @@ void AActionGameCharacter::BeginPlay()
 
 	LeftCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "fist_l_collision");
 	RightCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "fist_r_collision");
+
+	LeftCollisionBox->OnComponentHit.AddDynamic(this, &AActionGameCharacter::OnAttackHit);
+	RightCollisionBox->OnComponentHit.AddDynamic(this, &AActionGameCharacter::OnAttackHit);
+
+	//LeftCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AActionGameCharacter::OnAttackOverlapBegin);
+	//RightCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AActionGameCharacter::OnAttackOverlapBegin);
+	//
+	//LeftCollisionBox->OnComponentEndOverlap.AddDynamic(this, &AActionGameCharacter::OnAttackOverlapEnd);
+	//RightCollisionBox->OnComponentEndOverlap.AddDynamic(this, &AActionGameCharacter::OnAttackOverlapEnd);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -129,7 +140,12 @@ void AActionGameCharacter::AttackNotifyStart()
 	Log(ELogLevel::INFO, __FUNCTION__);
 
 	LeftCollisionBox->SetCollisionProfileName("Weapon");
+	LeftCollisionBox->SetNotifyRigidBodyCollision(true);
+	//LeftCollisionBox->SetGenerateOverlapEvents(true);
+
 	RightCollisionBox->SetCollisionProfileName("Weapon");
+	RightCollisionBox->SetNotifyRigidBodyCollision(true);
+	//RightCollisionBox->SetGenerateOverlapEvents(true);
 }
 
 void AActionGameCharacter::AttackNotifyEnd()
@@ -137,9 +153,30 @@ void AActionGameCharacter::AttackNotifyEnd()
 	Log(ELogLevel::INFO, __FUNCTION__);
 
 	LeftCollisionBox->SetCollisionProfileName("NoCollision");
+	LeftCollisionBox->SetNotifyRigidBodyCollision(false);
+	//LeftCollisionBox->SetGenerateOverlapEvents(false);
+
 	RightCollisionBox->SetCollisionProfileName("NoCollision");
+	RightCollisionBox->SetNotifyRigidBodyCollision(false);
+	//RightCollisionBox->SetGenerateOverlapEvents(false);
 }
 
+
+void AActionGameCharacter::OnAttackHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	Log(ELogLevel::WARNING, __FUNCTION__);
+	Log(ELogLevel::INFO, Hit.Actor->GetName());
+}
+
+void AActionGameCharacter::OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	Log(ELogLevel::WARNING, __FUNCTION__);
+}
+
+void AActionGameCharacter::OnAttackOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	Log(ELogLevel::WARNING, __FUNCTION__);
+}
 
 void AActionGameCharacter::OnResetVR()
 {
