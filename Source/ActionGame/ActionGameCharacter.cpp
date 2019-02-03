@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 
 #include "Engine.h"
+#include "UnrealMathUtility.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AActionGameCharacter
@@ -70,6 +71,17 @@ AActionGameCharacter::AActionGameCharacter()
 	RightCollisionBox->SetWorldScale3D(FVector(0.18f));
 	RightCollisionBox->SetHiddenInGame(false);
 	RightCollisionBox->SetNotifyRigidBodyCollision(false); // collision simulation generates hit events
+
+
+	// sound cue
+	static ConstructorHelpers::FObjectFinder<USoundCue> AttackPunchSoundCueObject(TEXT("SoundCue'/Game/Resources/Audio/AttackPunchCue.AttackPunchCue'"));
+	if (AttackPunchSoundCueObject.Succeeded())
+	{
+		AttackPunchSoundCue = AttackPunchSoundCueObject.Object;
+
+		PunchAudioComponent = CreateDefaultSubobject<UAudioComponent>("PunchAudioComponent");
+		PunchAudioComponent->SetupAttachment(RootComponent);		
+	}
 }
 
 void AActionGameCharacter::BeginPlay()
@@ -90,6 +102,11 @@ void AActionGameCharacter::BeginPlay()
 	//
 	//LeftCollisionBox->OnComponentEndOverlap.AddDynamic(this, &AActionGameCharacter::OnAttackOverlapEnd);
 	//RightCollisionBox->OnComponentEndOverlap.AddDynamic(this, &AActionGameCharacter::OnAttackOverlapEnd);
+
+	if (PunchAudioComponent != NULL && AttackPunchSoundCue != NULL)
+	{
+		PunchAudioComponent->SetSound(AttackPunchSoundCue);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -166,6 +183,12 @@ void AActionGameCharacter::OnAttackHit(UPrimitiveComponent* HitComponent, AActor
 {
 	Log(ELogLevel::WARNING, __FUNCTION__);
 	Log(ELogLevel::INFO, Hit.Actor->GetName());
+	if (PunchAudioComponent != NULL && !PunchAudioComponent->IsPlaying())
+	{
+		// default pitch value 1.0f
+		PunchAudioComponent->SetPitchMultiplier(FMath::RandRange(1.f, 1.3f));
+		PunchAudioComponent->Play(0.f);
+	}
 }
 
 void AActionGameCharacter::OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

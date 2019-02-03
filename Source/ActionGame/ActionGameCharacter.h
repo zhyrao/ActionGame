@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 
 #include "Components/BoxComponent.h"
-
+#include "Components/AudioComponent.h"
 #include "ActionGameCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -48,6 +48,8 @@ class AActionGameCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* MeleeFistAttackMontage;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Audio, meta = (AllowPrivateAccess = "true"))
+	class USoundCue* AttackPunchSoundCue;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* LeftCollisionBox;
@@ -133,6 +135,7 @@ public:
 	UFUNCTION()
 	void OnAttackOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 private:
+	UAudioComponent* PunchAudioComponent;
 	/** Log - prints message to log outputs **/
 	void Log(ELogLevel LogLevel, FString Message);
 
