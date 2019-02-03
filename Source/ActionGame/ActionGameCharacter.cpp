@@ -57,7 +57,7 @@ AActionGameCharacter::AActionGameCharacter()
 
 	LeftCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftCollisionBox"));
 	LeftCollisionBox->SetupAttachment(RootComponent);
-	LeftCollisionBox->SetCollisionProfileName("NoCollision");
+	LeftCollisionBox->SetCollisionProfileName(MeleeCollisionProfile.Disabled);
 
 	LeftCollisionBox->SetWorldScale3D(FVector(0.18f));
 	LeftCollisionBox->SetHiddenInGame(false);
@@ -66,7 +66,7 @@ AActionGameCharacter::AActionGameCharacter()
 
 	RightCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightCollisionBox"));
 	RightCollisionBox->SetupAttachment(RootComponent);
-	RightCollisionBox->SetCollisionProfileName("NoCollision");
+	RightCollisionBox->SetCollisionProfileName(MeleeCollisionProfile.Disabled);
 
 	RightCollisionBox->SetWorldScale3D(FVector(0.18f));
 	RightCollisionBox->SetHiddenInGame(false);
@@ -156,11 +156,11 @@ void AActionGameCharacter::AttackNotifyStart()
 {
 	Log(ELogLevel::INFO, __FUNCTION__);
 
-	LeftCollisionBox->SetCollisionProfileName("Weapon");
+	LeftCollisionBox->SetCollisionProfileName(MeleeCollisionProfile.Enabled);
 	LeftCollisionBox->SetNotifyRigidBodyCollision(true);
 	//LeftCollisionBox->SetGenerateOverlapEvents(true);
 
-	RightCollisionBox->SetCollisionProfileName("Weapon");
+	RightCollisionBox->SetCollisionProfileName(MeleeCollisionProfile.Enabled);
 	RightCollisionBox->SetNotifyRigidBodyCollision(true);
 	//RightCollisionBox->SetGenerateOverlapEvents(true);
 }
@@ -169,11 +169,11 @@ void AActionGameCharacter::AttackNotifyEnd()
 {
 	Log(ELogLevel::INFO, __FUNCTION__);
 
-	LeftCollisionBox->SetCollisionProfileName("NoCollision");
+	LeftCollisionBox->SetCollisionProfileName(MeleeCollisionProfile.Disabled);
 	LeftCollisionBox->SetNotifyRigidBodyCollision(false);
 	//LeftCollisionBox->SetGenerateOverlapEvents(false);
 
-	RightCollisionBox->SetCollisionProfileName("NoCollision");
+	RightCollisionBox->SetCollisionProfileName(MeleeCollisionProfile.Disabled);
 	RightCollisionBox->SetNotifyRigidBodyCollision(false);
 	//RightCollisionBox->SetGenerateOverlapEvents(false);
 }

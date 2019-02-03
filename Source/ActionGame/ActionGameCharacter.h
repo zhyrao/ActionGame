@@ -9,6 +9,27 @@
 #include "Components/AudioComponent.h"
 #include "ActionGameCharacter.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FMeleeCollisionProfile
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Enabled;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Disabled;
+
+	// default constructor
+	FMeleeCollisionProfile()
+	{
+		Enabled = FName(TEXT("Weapon"));
+		Disabled = FName(TEXT("NoCollision"));
+	}
+};
+
+
 UENUM(BlueprintType)
 enum class ELogLevel : uint8 {
 	TRACE		UMETA(DisplayName = "Trace"),
@@ -136,6 +157,8 @@ public:
 	void OnAttackOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 private:
 	UAudioComponent* PunchAudioComponent;
+
+	FMeleeCollisionProfile MeleeCollisionProfile;
 	/** Log - prints message to log outputs **/
 	void Log(ELogLevel LogLevel, FString Message);
 
