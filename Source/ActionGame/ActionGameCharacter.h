@@ -96,6 +96,9 @@ class AActionGameCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Audio, meta = (AllowPrivateAccess = "true"))
 	class USoundCue* AttackPunchSoundCue;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Audio, meta = (AllowPrivateAccess = "true"))
+	class USoundCue* PunchThrowSoundCue;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* LeftCollisionBox;
 
@@ -160,6 +163,8 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	UAudioComponent* PunchThrowAudioComponent;
+
 	/** Notifiy start**/
 	UFUNCTION()
 	void AttackNotifyStart();
@@ -181,6 +186,7 @@ public:
 	void OnAttackOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 private:
 	UAudioComponent* PunchAudioComponent;
+	
 
 	FMeleeCollisionProfile MeleeCollisionProfile;
 	/** Log - prints message to log outputs **/

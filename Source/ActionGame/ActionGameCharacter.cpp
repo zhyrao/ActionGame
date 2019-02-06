@@ -90,6 +90,16 @@ AActionGameCharacter::AActionGameCharacter()
 		PunchAudioComponent = CreateDefaultSubobject<UAudioComponent>("PunchAudioComponent");
 		PunchAudioComponent->SetupAttachment(RootComponent);		
 	}
+	
+	// punch throw sound cue
+	static ConstructorHelpers::FObjectFinder<USoundCue> PunchThrowSoundCueObject(TEXT("SoundCue'/Game/Resources/Audio/punchThrowSoundCue.punchThrowSoundCue'"));
+	if (PunchThrowSoundCueObject.Succeeded())
+	{
+		PunchThrowSoundCue = PunchThrowSoundCueObject.Object;
+
+		PunchThrowAudioComponent = CreateDefaultSubobject<UAudioComponent>("PunchThrowAudioComponent");
+		PunchThrowAudioComponent->SetupAttachment(RootComponent);
+	}
 }
 
 void AActionGameCharacter::BeginPlay()
@@ -114,6 +124,11 @@ void AActionGameCharacter::BeginPlay()
 	if (PunchAudioComponent != NULL && AttackPunchSoundCue != NULL)
 	{
 		PunchAudioComponent->SetSound(AttackPunchSoundCue);
+	}
+
+	if (PunchThrowAudioComponent!= NULL && PunchThrowSoundCue != NULL)
+	{
+		PunchThrowAudioComponent->SetSound(PunchThrowSoundCue);
 	}
 }
 
