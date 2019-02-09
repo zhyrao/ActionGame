@@ -171,7 +171,7 @@ void AActionGameCharacter::PunchInput()
 	if (MeleeAttackDataTable)
 	{
 		static const FString ContextString(TEXT("Player Attack Montage Context"));
-		FPlayAttackMontage* AttackMontage = MeleeAttackDataTable->FindRow<FPlayAttackMontage>(FName(TEXT("Punch1")), ContextString, true);
+		AttackMontage = MeleeAttackDataTable->FindRow<FPlayAttackMontage>(FName(TEXT("Punch1")), ContextString, true);
 		if (AttackMontage)
 		{
 			int32 AniSectionCount = AttackMontage->AnimationSectionCount;
@@ -222,6 +222,19 @@ void AActionGameCharacter::OnAttackHit(UPrimitiveComponent* HitComponent, AActor
 		// default pitch value 1.0f
 		PunchAudioComponent->SetPitchMultiplier(FMath::RandRange(1.f, 1.3f));
 		PunchAudioComponent->Play(0.f);
+	}
+
+	UAnimInstance * AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		// not perfect.
+		//AnimInstance->Montage_Stop(AnimationVar, AttackMontage->Montage);
+
+		//AnimInstance->Montage_Pause(AttackMontage->Montage);
+		//AnimInstance->Montage_Resume(AttackMontage->Montage);
+
+		float currentPosition = AnimInstance->Montage_GetPosition(AttackMontage->Montage);
+		AnimInstance->Montage_Play(AttackMontage->Montage, AnimationVar, EMontagePlayReturnType::Duration, currentPosition, true);
 	}
 }
 

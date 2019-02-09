@@ -105,6 +105,8 @@ class AActionGameCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* RightCollisionBox;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	float AnimationVar;
 public:
 	AActionGameCharacter();
 
@@ -187,6 +189,7 @@ public:
 private:
 	UAudioComponent* PunchAudioComponent;
 	
+	FPlayAttackMontage* AttackMontage;
 
 	FMeleeCollisionProfile MeleeCollisionProfile;
 	/** Log - prints message to log outputs **/
