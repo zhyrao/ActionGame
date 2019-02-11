@@ -21,6 +21,17 @@ void UAttackAnimNotifyState::NotifyBegin(USkeletalMeshComponent * MeshComp, UAni
 
 void UAttackAnimNotifyState::NotifyTick(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation, float FrameDeltaTime)
 {
+	if (MeshComp != NULL && MeshComp->GetOwner() != NULL)
+	{
+		AActionGameCharacter* player = Cast<AActionGameCharacter>(MeshComp->GetOwner());
+		if (player != NULL)
+		{
+			if (player->GetCurrentAttackType() == EAttackType::MELEE_KICK)
+			{
+				player->SetIsKeyboardEnabled(false);
+			}
+		}
+	}
 }
 
 void UAttackAnimNotifyState::NotifyEnd(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation)
@@ -31,7 +42,8 @@ void UAttackAnimNotifyState::NotifyEnd(USkeletalMeshComponent * MeshComp, UAnimS
 		AActionGameCharacter* player = Cast<AActionGameCharacter>(MeshComp->GetOwner());
 		if (player != NULL)
 		{
-			player->AttackNotifyEnd();
+			player->AttackNotifyEnd();		
+			player->SetIsKeyboardEnabled(true);
 		}
 	}
 }

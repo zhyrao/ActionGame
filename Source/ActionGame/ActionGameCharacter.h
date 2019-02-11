@@ -69,7 +69,8 @@ enum class ELogOutput : uint8 {
 
 UENUM(BlueprintType)
 enum class EAttackType: uint8 {
-	MELEE_FIST	UMETA(DisplayName = "Melee - Fist")
+	MELEE_FIST	UMETA(DisplayName = "Melee - Fist"),
+	MELEE_KICK  UMETA(DisplayName = "Melee - Kick")
 };
 
 UCLASS(config=Game)
@@ -121,6 +122,23 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
+
+	/** Call for Kick input */
+	void PunchInput();
+	void KickInput();
+
+	/** Call for Punch input */
+	void AttackInput(EAttackType type);
+
+	UFUNCTION(BlueprintCallable, Category = Animation)
+	bool GetIsAnimationBlended();
+
+	UFUNCTION(BlueprintCallable, Category = Animation)
+	void SetIsKeyboardEnabled(bool Enabled);
+
+
+	UFUNCTION(BlueprintCallable, Category = Animation)
+	EAttackType GetCurrentAttackType();
 protected:
 
 	/** Resets HMD orientation in VR. */
@@ -132,9 +150,6 @@ protected:
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
-
-	/** Call for Punch input */
-	void PunchInput();
 
 	/** 
 	 * Called via input to turn at a given rate. 
@@ -192,6 +207,12 @@ private:
 	FPlayAttackMontage* AttackMontage;
 
 	FMeleeCollisionProfile MeleeCollisionProfile;
+
+	EAttackType CurrentAttack;
+
+	bool IsAnimationBlended;
+
+	bool IsKeyboardEnabled;
 	/** Log - prints message to log outputs **/
 	void Log(ELogLevel LogLevel, FString Message);
 

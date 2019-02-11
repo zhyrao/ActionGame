@@ -50,7 +50,7 @@ AActionGameCharacter::AActionGameCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	// load player montage
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> MeleeFistAttackMontageObject(TEXT("AnimMontage'/Game/Resources/Animations/MeleeFistAttackMontage.MeleeFistAttackMontage'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> MeleeFistAttackMontageObject(TEXT("AnimMontage'/Game/Resources/Animations/Attack/Punch/MeleeFistAttackMontage.MeleeFistAttackMontage'"));
 	if (MeleeFistAttackMontageObject.Succeeded())
 	{
 		MeleeFistAttackMontage = MeleeFistAttackMontageObject.Object;
@@ -106,11 +106,7 @@ void AActionGameCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// attach collision to sockets based on transformation definitions
-	const FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
-
-	LeftCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "fist_l_collision");
-	RightCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "fist_r_collision");
+	IsAnimationBlended = true;
 
 	LeftCollisionBox->OnComponentHit.AddDynamic(this, &AActionGameCharacter::OnAttackHit);
 	RightCollisionBox->OnComponentHit.AddDynamic(this, &AActionGameCharacter::OnAttackHit);
@@ -143,6 +139,7 @@ void AActionGameCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Punch", IE_Pressed, this, &AActionGameCharacter::PunchInput);
+	PlayerInputComponent->BindAction("Kick", IE_Pressed, this, &AActionGameCharacter::KickInput);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AActionGameCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AActionGameCharacter::MoveRight);
@@ -163,7 +160,32 @@ void AActionGameCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AActionGameCharacter::OnResetVR);
 }
 
+bool AActionGameCharacter::GetIsAnimationBlended()
+{
+	return IsAnimationBlended;
+}
+
+void AActionGameCharacter::SetIsKeyboardEnabled(bool Enabled)
+{
+	IsKeyboardEnabled = Enabled;
+}
+
 void AActionGameCharacter::PunchInput()
+{
+	AttackInput(EAttackType::MELEE_FIST);
+}
+
+void AActionGameCharacter::KickInput()
+{
+	AttackInput(EAttackType::MELEE_KICK);
+}
+
+EAttackType AActionGameCharacter::GetCurrentAttackType()
+{
+	return CurrentAttack;
+}
+
+void AActionGameCharacter::AttackInput(EAttackType type)
 {
 	Log(ELogLevel::INFO, __FUNCTION__);
 
@@ -171,7 +193,37 @@ void AActionGameCharacter::PunchInput()
 	if (MeleeAttackDataTable)
 	{
 		static const FString ContextString(TEXT("Player Attack Montage Context"));
-		AttackMontage = MeleeAttackDataTable->FindRow<FPlayAttackMontage>(FName(TEXT("Punch1")), ContextString, true);
+		// attach collision to sockets based on transformation definitions
+		const FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
+
+		CurrentAttack = type;
+
+		switch (type)
+		{
+		case EAttackType::MELEE_FIST:
+			AttackMontage = MeleeAttackDataTable->FindRow<FPlayAttackMontage>(FName(TEXT("Punch")), ContextString, true);
+
+			LeftCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "fist_l_collision");
+			RightCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "fist_r_collision");
+
+			IsKeyboardEnabled = true;
+
+			IsAnimationBlended = true;
+			break;
+		case EAttackType::MELEE_KICK:
+			AttackMontage = MeleeAttackDataTable->FindRow<FPlayAttackMontage>(FName(TEXT("Kick")), ContextString, true);
+
+			LeftCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "foot_l_collision");
+			RightCollisionBox->AttachToComponent(GetMesh(), AttachmentTransformRules, "foot_r_collision");
+			
+			IsKeyboardEnabled = false;
+			IsAnimationBlended = false;
+			break;
+		default:
+			IsAnimationBlended = true;
+			break;
+		}
+
 		if (AttackMontage)
 		{
 			int32 AniSectionCount = AttackMontage->AnimationSectionCount;
@@ -277,7 +329,7 @@ void AActionGameCharacter::LookUpAtRate(float Rate)
 
 void AActionGameCharacter::MoveForward(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
+	if ((Controller != NULL) && (Value != 0.0f) && IsKeyboardEnabled)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -291,7 +343,7 @@ void AActionGameCharacter::MoveForward(float Value)
 
 void AActionGameCharacter::MoveRight(float Value)
 {
-	if ( (Controller != NULL) && (Value != 0.0f) )
+	if ( (Controller != NULL) && (Value != 0.0f) && IsKeyboardEnabled)
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
